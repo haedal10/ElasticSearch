@@ -1,0 +1,17 @@
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B001).label('PAYCO-today'),
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B001, offset=-1d).label('PAYCO -d'),
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B001, offset=-1w).label('PAYCO -w'),
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B003).label('QuickPay-today'),
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B003,offset=-1d).label('QuickPay -d'),
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B003,offset=-1w).label('QuickPay -w')
+#############################################################################################
+#############################################################################################
+.es(index=logstash-fdsadm-2018*,q='biz_cd:B003').if(eq,.es(q='final_det_grade_cd:R002',index=logstash-fdsadm-2018*), 1, 0)
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B003,offset=-1d).label('QuickPay -d'),
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B003,offset=-1w).label('QuickPay -w')
+
+.es(index=logstash-fdsadm-2018*,q=biz_cd:B003 |final_det_grade_cd:R002).label('QuickPay-rv')
+
+.if(lt, .es(q='final_det_grade_cd:R002',index=logstash-fdsadm-2018*), 1, 0)
+.es(index=logstash-fdsadm-2018*,q='biz_cd:B003').divide(.es(q='final_det_grade_cd:R002',index=logstash-fdsadm-2018*))
+(Çü½Ä: 1h, 1d, 1w, 1M, 1y)

@@ -1,0 +1,81 @@
+1. 로그스태시로 로그파싱하기
+
+- 이번 섹션에서는 파일비트를 사용해서 로그스태시 파이프라인을 만든다.
+- 파일비트를 사용해서 아파치웹로그들을 인풋으로 가져옴. 
+- 이 로그들을 세세하게 파싱해서 생성하고,
+- 로그로부터 필드명을 지어주고, 파서된 데이터를 엘라스틱서치 클러스터에 쓴다.
+-  커맨드라인에서 파이프라인구성을 정의하기보다, config파일에서 파이프라인을 정의하는 것이 낫다.
+- 시작하기 위해서 여기서 쓰는 examplefile을 다운로드한다.  파일을 풀어준다
+  (https://download.elastic.co/demos/logstash/gettingstarted/logstash-tutorial.log.gz)
+
+2. 로그라인에서 로그스태시로 보내는 파일비트(filebeat) 구성하기
+- 먼저 로그스태시 파이프라인을 생성하기전, 로그라인을 로그스태시로 보내는 파일비트 구성해야됨.
+- 파일비트 클라이언트 가볍움, 리소스프렌들리 툴, 파일에서 로그모음
+- 파일비트 클라이언트는 가볍고, 리소스-프렌들리 하는 툴임. 
+- 서버에 있는 파일로부터 로그를 모으고, 프로세싱하는 로그스태시 인스턴스의 로그들 앞쪽에잇음.
+- 원래 보통은 파일비트가 로그스태시 인스턴스와 다른 서버에서 운영하지만 이번에는 같은 서버에서 운영.
+
+- 기본 로그스태시설치하면 beats input 플러그인 포함되어있음.
+- beats입력 플러그인을 설치하면 로그스태시가 엘라스틱 비트 프레임워크에서 이벤트를 수신가능
+- packetbeat및 metircbeat과 같은 beats프레임 워크와 함께 작동하도록 작성된 beats도 로그 스태시로 이벤트 데이터 보냄
+
+- filebeat 설치 디렉토리에 있는 filebeat.yml파일열고 다음행으로 바꿈
+
+---------------------------------------------------------------------
+filebeat.prospectors:
+- type: log
+  paths:
+    - /path/to/file/logstash-tutorial.log 
+output.logstash:
+  hosts: ["localhost:5043"]
+--------------------------------------------------------------------
+path에서 앞에 다룬 예제파일 가리키는 지 확인(logstash-tutorial.log)
+
+파일비트 실행
+(다음 파일 의 권한에 대해서는 다음 문서 참조
+https://translate.googleusercontent.com/translate_c?act=url&depth=1&hl=ko&ie=UTF8&prev=_t&rurl=translate.google.co.kr&sl=en&sp=nmt4&tl=ko&u=https://www.elastic.co/guide/en/beats/libbeat/6.0/config-file-permissions.html&usg=ALkJrhhGAxtEg4gaP_yzeUvwLNzsorNgMg
+)
+sudo ./filebeat -e -c filebeat.yml -d "publish" 
+
+
+3. 파일비트 입력을 위한 로그스태시 구성하기
+비트 입력 플러그인을 사용하여 비트에서 이벤트를 수신하는 로그 스태시 구성 파이프라인을 작성함
+
+-----------------------------------------------------------------------------
+
+# The # character at the beginning of a line indicates a comment. Use
+# comments to describe your configuration.
+input {
+}
+# The filter part of this file is commented out to indicate that it is
+# optional.
+# filter {
+#
+# }
+output {
+}
+-----------------------------------------------------------------------------
+
+- 입력 및 출력 에 입력된게 없어서 작동안함.
+- 시작하려면 골격 구성 파이프라인 복사해서 logstash 디렉토리에 first-pipeline.conf 파일에 붙여넣으면됨
+- first-pipeline.conf 파일에 input섹션에 다음행을 추가함
+beats {
+        port => "5043"
+    }
+beats입력 플러그인을 사용하도록 logstash 구성한다.
+
+
+
+4. Grok 필터 플러그인으로 웹로그 파싱하기
+
+
+5. geoip 필터플러그인으로 데이터 강화하기.
+
+
+6. 엘라스틱서치안으로 인덱싱하기
+
+
+- 파이프라인 테스트
+
+
+  

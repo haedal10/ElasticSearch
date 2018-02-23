@@ -1,0 +1,205 @@
+
+Document API (기능)
+
+1. Document 생성
+2. Document 조회
+3. Document 수정
+4. Document 삭제
+5. Document 복사
+--------------------------------------------------------------------
+Ducument 추가
+
+PUT {Index 이름}/{Type 이름}/{ID}
+{
+"{Field 이름}":{Value}
+}
+
+PUT week3_higee/week3_higee/1
+{
+"가격":10000,
+"나이":17
+}
+
+PUT {Index 이름}/{Type 이름}/{ID}
+{
+"가격":10000,
+"나이":17
+}
+
+PUT {Index 이름}/{Type 이름}/{ID}
+{
+"가격":10000,
+"나이":17
+}
+
+--------------------------------------------------------------------
+ ID로 Document조회
+ 
+ GET {index 이름}/{Type 이름}/{ID}
+ 
+ GET week3_higee/week3_higee/1
+ 
+ 
+ --------------------------------------------------------------------
+  ID로 Document 삭제
+ 
+ DELETE {index 이름}/{Type 이름}/{ID}
+ 
+ DELETE week3_higee/week3_higee/1
+ 
+ 
+-------------------------------------------------------------------
+Query로 Document 삭제
+ 
+POST {Index 이름}/_delete_by_query
+{
+"query":{
+  "match":{
+    "{Field 이름}":"{Value}"
+    }
+  }
+}
+ 
+POST week3_higee/_delete_by_query
+{
+"query": {
+  "match": {
+    "나이": 17
+    }
+  }
+}
+ 
+-------------------------------------------------------------------
+ID로 Document 수정
+POST {Index 이름}/{Type 이름}/{ID}/_update
+{
+"doc":{
+"{Field}":{Values}
+}
+}
+
+POST week3_higee/week3_higee/2/_update
+{
+"doc":{
+"가격":20000
+}
+}
+
+-------------------------------------------------------------------
+ID로 Document 수정(upsert)
+
+POST {Index 이름}/{Type 이름}/{ID}/_update
+{
+"doc":{
+"{Field}":{Values}
+},
+"doc_as_upsert":true
+}
+
+
+POST week3_higee/week3_higee/2/_update
+{
+"doc":{
+"가격":"50000"
+},
+"doc_as_upsert":true
+}
+ 
+POST week3_higee/week3_higee/777/_update
+{
+"doc":{
+"가격":"50000"
+},
+"doc_as_upsert":true
+}
+ 
+------------------------------------------------------------------
+Query로 Document 수정
+
+POST {Index 이름}/{Type 이름}/_update_by_query
+{
+"script":{
+"source":"ctx._source[{Field 이름}]= Value
+}, 
+"query":{
+"term":{
+"{Field 이름}":"Value"
+}
+}
+} 
+ 
+POST week3_higee/week3_higee/_update_by_query
+{
+"script":{
+"source":"ctx._source['가격']= 7777"
+}, 
+"query":{
+"term":{
+"나이":"17"
+}
+}
+} 
+
+------------------------------------------------------------------
+index 내 모든 Document 복사
+
+POST _reindex 
+{
+"source":{
+"index":"{복사하려는 원본 Index 이름}"
+},
+"dest":{
+"index":"{복사본을 저장할 Index이름}"
+}
+}
+
+POST _reindex 
+{
+"source":{
+"index":"week3_higee"
+},
+"dest":{
+"index":"week3_higee_reindex"
+}
+}
+
+------------------------------------------------------------------
+index 내 일부 Document 복사
+
+POST _reindex 
+{
+"source":{
+"index":"{복사하려는 원본 Index 이름}",
+"type":"{복사하려는 원본 type 이름}",
+"query":{
+"term":{
+"{Field 이름}":"{Value}"
+}
+}
+},
+"dest":{
+"index":"{복사본을 저장할 Index이름}"
+}
+}
+
+POST _reindex 
+{
+"source":{
+"index":"week3_higee",
+"type":"week3_higee",
+"query":{
+"term":{
+"나이":17
+}
+}
+},
+"dest":{
+"index":"week3_higee_reindex2"
+}
+}
+
+
+
+
+
+

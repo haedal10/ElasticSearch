@@ -1,0 +1,40 @@
+elasticsearch + kibana 구성
+
+1. ElasticSearch 설치
+
+
+
+
+  1-(1) google.com 파일 다운로드 
+  1-(2) rpm설치
+        rpm -Uvh [rpm 파일명]
+
+2. ElasticSearch 시작
+   systemctl start elasticsearch.service
+
+3. ElasticSearch 서비스 확인
+    curl http://localhost:9200  
+
+해당 명령어 후 응답 확인
+
+########################################################
+
+
+1. kibana 설치 
+   1-(1) google.com 파일 다운로드
+   1-(2) tar -xzvf [kibana파일명]
+   
+2. 파일편집 : kibana.yml
+   2-(1) 주석해제
+   elasticsearch.url: "http://localhost:9200"
+3. ./bin/kibana 실행
+   server running at http://localhost:5601
+########################################################
+
+
+
+**kibana 포트 에러.(이미사용중)
+해결 : 
+lsof -i :5601
+kill -9 [pid]
+

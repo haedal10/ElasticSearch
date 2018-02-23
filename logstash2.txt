@@ -1,0 +1,39 @@
+이벤트 첫 저장하기 
+
+- 대부분의 기본적인 로그스태시를 운영함으로써, 로그스태시 설치한거 테스트가능함.
+- 로그스태시 파이프라인은 두개요소 가지고있음. input, output 그리고 하나는 옵션 요소 filter임
+
+DATA SOURCE -> inputs >> filters >> outputs -> 엘라스틱서치
+
+ - input plugins : 소스에서 데이터 소모.(읽기)
+ - filter plugins : 데이터 변형.
+ - output plugins : 최종 목적지에 데이터 쓰기.
+ 
+ 
+ - 로그스태시 테스트를 위한 간단한 파이프라인 예제
+cd logstash-6.0.0
+bin/logstash -e 'input { stdin { } } output { stdout {} }'
+
+ ** bin 위치는 시스템마다 다름 (참고 : www.elastic.co/guide/en/logstash/6.0/dir-layout.html)
+
+-e flag는 커맨드 라인으로 부터 직접적으로 특정한 구성을 할수 있게 해줌
+- 커맨드라인에서 구성을 세분화 하는것이 빨리 구성을 빨리 테스트하게 될수있음.
+- 반복과정속에서 파일 수정하는 것없이.
+
+- 예제안에서 파이프라인은 스탠다트 인풋 : stdin에서 input을 가져오게되는데
+스탠다드 아웃풋쪽으로 input을 옮겨준다. 구조화된 포맷안에서 하는것임.
+
+- 로그스태시 시작후에 pipeline main이 시작되어지고있다는것을 보게 될것임.
+그리고 커맨드라인에서 helloworld치면 다음과 같이 나옴
+
+hello world
+2013-11-21T01:@2:14.405+0000 0.0.0.0 hello world
+
+로그 스태시는 타임스탬프와 ip어드레스를 메세지에 추가함.
+ctrl+d로 실행 중인 로그스태시를 나갈 수 있음
+
+
+  
+
+
+

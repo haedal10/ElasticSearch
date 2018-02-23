@@ -1,0 +1,158 @@
+PUT my_index 
+{
+  "mappings": {
+    "doc": { 
+      "properties": { 
+        "title":    { "type": "text"  }, 
+        "name":     { "type": "text"  }, 
+        "age":      { "type": "integer" },  
+        "created":  {
+          "type":   "date", 
+          "format": "strict_date_optional_time||epoch_millis"
+        }
+      }
+    }
+  }
+}
+
+
+(1) index 생성/삭제
+
+   - 인덱스 생성
+   PUT {index 이름}   
+   PUT week3_higee
+
+   - 인덱스 삭제
+   DELETE {index 이름}
+   DELETE week3_higee
+   
+ 
+   
+   
+ (2) mapping 설정
+
+  -1. 인덱스 생성 후 매핑추가
+  PUT {index 이름}/_mapping/{type 이름}
+  {
+  "properties":{
+    "{field 이름} : {
+    "type" : "{field type}"
+     }
+    }
+  }
+  
+  PUT week3_higee/_mapping/week3_higee
+  {
+  "properties":{
+    "가격" : {
+    "type" : "integer"
+     }
+    }
+  }
+  
+  
+  
+  -2. 인덱스 생성하면서 매핑추가
+ 
+ PUT {Index 이름}
+ {
+ "mappings":{
+   "{Type이름}":{
+     "properties":{
+       "{Field1 이름}":{
+         "type": "{Field1 Type}"
+         
+         },
+         "{Field2 이름}":{
+         "type":"{Field2 Type}"
+         }
+       }
+     }
+  }
+} 
+  
+  
+ PUT week3_higee_mapping_test
+ {
+ "mappings":{
+   "week3_higee":{
+     "properties":{
+       "가격":{
+         "type": "integer"
+         
+         },
+         "날짜":{
+         "type":"date"
+         }
+       }
+     }
+  }
+} 
+ 
+  
+    -3. template 활용해서 자동으로 매핑추가
+  
+ PUT _template/{Template 이름}
+ {
+ "template":"{Index Pattern}",
+ "mappings":{
+ "{Type 이름}":{
+ "properties":{
+ "Field1 이름":{
+ "type":"Field1 Type"
+ },
+ "Field2 이름":{
+ "type":"Field2 Type"
+         }
+       }
+     }
+   }
+ }
+ 
+  PUT _template/template_higee
+ {
+ "template":"higee-log*",
+ "mappings":{
+ "my_type":{
+ "properties":{
+ "가격":{
+ "type":"integer"
+ },
+ "날짜":{
+ "type":"date"
+         }
+       }
+     }
+   }
+ }
+ 
+    -4. 기존 mapping에 새로운 field mapping 추가하기
+
+PUT {Index이름}/_mapping/{Type 이름}
+{
+"properties":{
+"{Field 이름}":{
+"type":"{Field Type}"
+      }
+    }
+  }
+ 
+PUT week3_higee/_mapping/week3_higee
+{
+"properties":{
+"나이":{
+"type":"integer"
+      }
+    }
+  }
+
+    -5. Mapping 확인
+
+GET /{index 이름}/_mapping/{Type 이름}
+
+
+GET /week3_higee/_mapping/week3_higee1
+ 
+ 
+ 
+  

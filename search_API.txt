@@ -1,0 +1,170 @@
+1. Match all  Query
+2. Full Text Queries
+3. Term level Queries
+4. Bool Query
+5. 기타설정
+
+----------------------------------------------------------
+모든 Document 조회
+
+GET {Index 이름}/{Type 이름}/_search
+{
+"qeury":{
+"match_all":{}
+    }
+  }
+
+GET shopping/shopping/_search
+{
+"qeury":{
+"match_all":{}
+}
+}
+
+
+----------------------------------------------------------
+검색어와 정확히 일치하는 Document 조회
+
+PUT {Index 이름}/{Type 이름}/{ID}
+{
+"{Field 이름}":{Value}
+}
+
+PUT week3_higee/week3_higee/!
+{
+"가격":10000,
+"나이":17
+}
+
+----------------------------------------------------------
+검색어 중 적어도 1개와 정확히 일치하는 Document 조회
+GET {Index 이름}/{Type 이름}/_search
+{
+"query":{
+"terms":{
+"{Field 이름}":["{Value}","{Value}"]
+    }
+  }
+}
+
+GET shopping/shopping/_search
+{
+"query":{
+"terms":{
+"상품분류":["셔츠","스웨터"]
+}
+}
+}
+
+----------------------------------------------------------
+특정 접두어로 시작하는 Document조회
+
+GET {Index 이름}/{Type 이름}/_search
+{
+"query":{
+"prefix":{
+"{Field 이름}":"{Value}"
+    }
+  }
+}
+
+GET shopping/shopping/_search
+{
+"query":{
+"terms":{
+"고객주소_시도":["경상"]
+}
+}
+}
+----------------------------------------------------------
+Wildcard Expression 만족하는 Documents조회
+
+GET {Index 이름}/{Type 이름}/_search
+{
+"query":{
+"wildcard":{
+"{Field 이름}":"{Value}"
+    }
+  }
+}
+
+GET shopping/shopping/_search
+{
+"query":{
+"wildcard":{
+"고객주소_시도":["경**도"]
+}
+}
+}
+
+
+----------------------------------------------------------
+검색어와 유사한 Documents조회
+Wildcard Expression 만족하는 Documents조회
+
+GET {Index 이름}/{Type 이름}/_search
+{
+"query":{
+"fuzzy":{
+"{Field 이름}":"{Value}"
+    }
+  }
+}
+
+GET shopping/shopping/_search
+{
+"query":{
+"fuzzy":{
+"{Field 이름}":"{Value}"
+}
+}
+}
+
+
+----------------------------------------------------------
+특정 Numeric Field가 임의의 범위내에 있는 Document조회
+
+GET {Index 이름}/{Type 이름}/_search
+{
+"query":{
+"range":{
+"{Field 이름}":{
+"gte":"{Value}",
+"lte":"{Value}"
+}
+    }
+  }
+}
+
+GET shopping/shopping/_search
+{
+"query":{
+"range":{
+"주문시간":{
+"gte":"2017-02-15"
+}
+}
+}
+}
+
+----------------------------------------------------------
+
+
+
+
+----------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,944 @@
+데이터 수집 - logstash input plugin(필수)
+ File, Web, Db, Streaming, Sensors등에서 데이터 수집
+데이터 전처리 - logstash filter plugin(선택)
+ 분석하기 좋은 형태로 데이터 전처리
+데이터 전송 - logstash output plugin(필수)
+ 전처리한 데이터를 분석하기에 최적의 저장소로 전송
+
+실행명령어 : bin/logstash -f exercise.conf
+
+config - input 예시
+
+1. csv
+###############################################################
+input {
+file {
+path => "/dat1/fdsadm/hwlee/logstash/logstash-6.0.0/sample/titanic2.csv"
+start_position => "beginning"
+}
+}
+
+output {
+stdout{
+codec => rubydebug
+}
+}
+
+###############################################################
+
+2. log
+###############################################################
+input {
+file {
+path => "/dat1/fdsadm/hwlee/logstash/logstash-6.0.0/sample/apache.log"
+start_position => "beginning"
+}
+}
+
+output {
+stdout{
+codec => rubydebug
+}
+}
+
+###############################################################
+
+3. db
+###############################################################
+input {
+	  jdbc {
+	    jdbc_validate_connection => true
+	    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+	    jdbc_user => "fc"
+	    jdbc_password => "fc"
+	    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+	    jdbc_driver_class => "com.mysql.jdbc.Driver"
+	    statement => "SELECT * FROM fc"
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+
+
+###############################################################
+
+4. es
+###############################################################
+input {
+	  elasticsearch {
+	    hosts => ["13.125.21.52:9200"]
+	    index => "test"
+	    query => '{ 
+	      "query": { 
+	        "match_all": {}
+	      }
+	    }'
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+5. stdin
+###############################################################
+input {
+	  stdin {}
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+
+
+config - output 예시
+1. es.conf 
+###############################################################
+input {
+	  jdbc  {
+	    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+	    jdbc_validate_connection => true
+	    jdbc_user => "fc"
+	    jdbc_password => "fc"
+	    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+	    jdbc_driver_class => "com.mysql.jdbc.Driver"
+	    statement => "SELECT * FROM fc"
+	  }
+	}
+	
+	output {
+	  elasticsearch {
+	    hosts => ["13.125.35.175:9200"]
+	    index => "higee"
+	    document_type => "higee"
+	  }
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+2. slack.conf
+###############################################################
+input {
+	  jdbc  {
+	    jdbc_validate_connection => true
+	    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+	    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+	    jdbc_driver_class => "com.mysql.jdbc.Driver"
+	    jdbc_user => "fc"
+	    jdbc_password => "fc"
+	    statement => "SELECT * FROM fc"
+	  }
+	}
+	
+	output {
+	  if [salary] > 10000
+	  {
+	    slack {
+	      url => ["https://hooks.slack.com/services/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"]
+
+	      format => "축하드립니다! %{location} 국적의 %{age}살님의 연봉이 1억원을 돌파했습니다"
+	    }
+	  }
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+3.stdout.conf 
+###############################################################
+input {
+	  stdin {}
+	}
+	
+	output {
+	  stdout {
+	    codec => json
+	  }
+	}
+###############################################################
+
+
+config - filter 예시
+
+1. conf/filter/csv/csv_columns.conf 
+###############################################################
+input {
+	  file {
+	    path => "/home/ec2-user/fc/logstash-5.6.4/sample/titanic.csv"
+	    sincedb_path => "/dev/null"
+	    start_position => "beginning"
+	  }
+	}
+	
+	filter {
+	  csv {
+	    columns => ["Index", "Name", "Survival", "Pclass", "Sex", "Age", "SibSp", "Parch", "Ticket", "Fare", "Embarked"]
+	    separator => ","
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	  elasticsearch {
+	   hosts => ["13.125.35.175:9200"]
+	   index => "fc"
+	  }
+	}
+###############################################################
+ 
+2. elastic/Week4_Logstash/conf/filter/csv/csv_convert.conf 
+###############################################################
+input {
+	  file {
+	    path => "/home/ec2-user/fc/logstash-5.6.4/sample/titanic.csv"
+	    sincedb_path => "/dev/null"
+	    start_position => "beginning"
+	  }
+	}
+	
+	filter {
+	  csv {
+	    columns => ["Index", "Name", "Survival", "Pclass", "Sex", "Age", "SibSp", "Parch", "Ticket", "Fare", "Embarked"]
+	    separator => ","
+	    convert => {
+	      "Pclass" => "integer"
+	      "Index" => "integer"
+	      "Survival" => "integer"
+	      "Age" => "integer"
+	      "Fare" => "float"
+	    }
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	  elasticsearch {
+	   hosts => ["13.125.35.175:9200"]
+	   index => "fc"
+	  }
+	}
+###############################################################
+ 
+3. elastic/Week4_Logstash/conf/filter/csv/csv_separator.conf 
+###############################################################
+input {
+	  file  {
+	    path => "/home/ec2-user/fc/logstash-5.6.4/sample/titanic.csv"
+	    start_position => "beginning"
+	    sincedb_path => "/dev/null"
+	  }
+	}
+	
+	filter {
+	  csv {
+	    separator => ","
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+ 
+4. elastic/Week4_Logstash/conf/filter/grok/ 
+###############################################################
+input {
+	  file {
+	    path => "/home/ec2-user/fc/logstash-5.6.4/sample/apache.log"
+	  }
+	}
+	
+	filter {
+	  grok {
+	    match => { "message" => "%{COMBINEDAPACHELOG}" }
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+5. elastic/Week4_Logstash/conf/filter/grok/grok_py.conf 
+###############################################################
+input {
+	  file {
+	    path => "/home/ec2-user/fc/logstash-5.6.4/sample/test.log"
+	    sincedb_path => "/dev/null/"
+	    start_position => "beginning"
+	    ignore_older => 0
+	  }
+	}
+	
+	filter {
+	  grok {
+	    match => {
+	      "message" => "%{TIMESTAMP_ISO8601:date}, %{USERNAME:file}, %{USERNAME:function}, %{INT:line}, %{LOGLEVEL:level}, %{GREEDYDATA:messsage}"
+	    }
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+6. elastic/Week4_Logstash/conf/filter/mutate/add_field.conf 
+###############################################################
+input {
+	  stdin {
+	  }
+	}
+	
+	filter {
+	  mutate {
+	    split => {"message" => ","}
+	    add_field => {
+	      "first" => "%{message[0]}"
+	      "second" => "%{message[1]}"
+	    }
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+############################################################### 
+ 
+7. elastic/Week4_Logstash/conf/filter/mutate/mutate.conf 
+###############################################################
+input {
+	  stdin {}
+	}
+	
+	filter {
+	  mutate {
+	    copy => { "message" => "copied message" }
+	    split => { "message" => "," }
+	    rename => { "host" => "my host" }
+	    merge => ["@version", "host"]
+	    replace => { "@version" => "It's Confidential!" }
+	    add_field => {
+	      "first" => "%{message[0]}"
+	      "second" => "%{message[1]}"
+	    }
+	    remove_field => ["@version", "host", "@timestamp"]
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+8. elastic/Week4_Logstash/conf/filter/mutate/mutate_copy.conf 
+###############################################################
+input {
+	  stdin {}
+	}
+	
+	filter {
+	  mutate {
+	    copy => { "message" => "copied message" }
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+ 
+9. elastic/Week4_Logstash/conf/filter/mutate/mutate_merge.conf 
+###############################################################
+input {
+	  stdin {}
+	}
+	
+	filter {
+	  mutate {
+	    merge => ["@version", "host"]
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	} 
+###############################################################
+ 
+10. elastic/Week4_Logstash/conf/filter/mutate/mutate_rename.conf 
+###############################################################
+input {
+	  stdin {}
+	}
+	
+	filter {
+	  mutate {
+	    rename => { "@timestamp" => "what time is it?" }
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+11. elastic/Week4_Logstash/conf/filter/mutate/mutate_replace.conf 
+###############################################################
+input {
+	  stdin {}
+	}
+	
+	filter {
+	  mutate {
+	    replace => { "@version" => "Used to be @version" }
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+
+12. elastic/Week4_Logstash/conf/filter/mutate/mutate_split.conf 
+############################################################### 
+input {
+	  stdin {}
+	}
+	
+	filter {
+	  mutate {
+	    split => { "message" => " " }
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+############################################################### 
+ 
+13. elastic/Week4_Logstash/conf/filter/mutate/remove_field.conf 
+###############################################################
+input {
+	  stdin {
+	  }
+	}
+	
+	filter {
+	  mutate {
+	    remove_field => ["@version", "host", "@timestamp"]
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+	
+14. elastic/Week4_Logstash/conf/filter/common.conf 
+###############################################################
+input {
+	  stdin {
+	  }
+	}
+	
+	filter {
+	  mutate {
+	    split => {"message" => ","}
+	    add_field => {
+	      "first" => "%{message[0]}"
+	      "second" => "%{message[1]}"
+	    }
+	    remove_field => ["message", "host"]
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => rubydebug
+	  }
+	}
+###############################################################
+	
+15. conf/filter/date.conf 
+###############################################################
+input {
+	  stdin{}
+	}
+	
+	filter {
+	  date {
+	    match => ["message", "YYYY-MM-dd;HH:mm:ss.SSS"]
+	    target => "@timestamp"
+	  }
+	}
+	
+	output {
+	  stdout {
+	    codec => "rubydebug"
+	  }
+	  elasticsearch {
+	    hosts => ["13.125.21.52:9200"]
+	    index => "date_filter"
+	  }
+	}
+###############################################################
+
+
+
+*********************************************************************
+로그 스태시 관련문항
+
+목록
+문제1 : 국가별 평균 연봉
+문제2 : employment_status 별 연봉
+문제3 : 연봉이 10,000인 사람의 수
+문제4 : 30세 이하의 평균 연봉
+문제5 : 구매사이트가 옥션 또는 11번가인 고객
+문제6 : 구매사이트가 옥션 또는 11번가인 고객들의 평균나이
+문제7 : 판매자 평점이 2~4 사이인 고객의 평균 상품개수
+문제8 : 사용자 입력을 받아서 콘솔에 출력해보자
+문제9 : 이미 읽은 titanic.csv 파일을 강제로 다시 읽어서 콘솔에 출력해보자
+문제10 : sql_last_value 활용
+문제11 : sample.csv를 csf filter로 처리
+문제12 : “Seoul”, “Tokyo”, “Beijing”를 mutate filter로 처리
+
+
+
+문제1
+mysql(13.125.21.52:3306) database(fc) table(fc)에서 국가별 평균연봉을 콘솔에 출력해보자
+
+풀이1
+input {
+  jdbc {
+    jdbc_validate_connection => true
+    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+    jdbc_user => "fc"
+    jdbc_password => "fc"
+    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    statement => "
+      SELECT 
+        location, 
+        AVG(salary)
+      FROM fc 
+      GROUP BY location
+    "
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제2
+mysql(13.125.21.52:3306) database(fc) table(fc)에서 employment_status 별 평균연봉을 콘솔에 출력해보자
+
+풀이2
+input {
+  jdbc {
+    jdbc_validate_connection => true
+    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+    jdbc_user => "fc"
+    jdbc_password => "fc"
+    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    statement => "
+      SELECT
+        employment_status,
+        AVG(salary)
+      FROM fc
+      GROUP BY employment_status
+    "
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제3
+mysql(13.125.21.52:3306) database(fc) table(fc)에서 연봉이 10k 이상인 사람의 수를 콘솔에 출력해보자
+
+풀이3
+input {
+  jdbc {
+    jdbc_validate_connection => true
+    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+    jdbc_user => "fc"
+    jdbc_password => "fc"
+    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    statement => "
+      SELECT COUNT(id)
+      FROM fc
+      WHERE salary >= 10000
+    "
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제4
+mysql(13.125.21.52:3306) database(fc) table(fc)에서 30세 이하의 평균연봉을 콘솔에 출력해보자
+
+풀이4
+input {
+  jdbc {
+    jdbc_validate_connection => true
+    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+    jdbc_user => "fc"
+    jdbc_password => "fc"
+    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    statement => "
+      SELECT AVG(salary)
+      FROM fc
+      WHERE age <= 30
+    "
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제5
+elasticsearch(13.125.21.52:9200) `shopping` index에서 구매사이트가 옥션 또는 11번가인 Document를 출력해보자
+
+풀이5
+input {
+  elasticsearch {
+    hosts => ["13.125.21.52:9200"]
+    index => "shopping"
+    query => '{
+      "query": {
+        "terms": {
+          "구매사이트" : ["11번가", "옥션"]
+        }
+      }
+    }'
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제6
+elasticsearch(13.125.21.52:9200) `shopping` index에서 구매사이트가 옥션 또는 11번가인 고객의 평균나이를 출력해보자
+
+풀이6
+*	ex6.sh
+
+curl -XGET "http://13.125.21.52:9200/shopping/_search" -H 'Content-Type: application/json' -d'
+{
+  "size":0,
+  "query": {
+    "terms": {
+      "구매사이트": [
+        "11번가",
+        "옥션"
+      ]
+    }
+  },
+  "aggs": {
+    "avg_age": {
+      "avg": {
+        "field": "고객나이"
+      }
+    }
+  }
+}'
+
+*	ex6.sh 권한변경
+$ chmod 777 ex6.sh
+
+*	ex6.conf
+
+input {
+  exec {
+    command => "/home/ec2-user/fc/logstash-5.6.4/ex6.sh"
+    interval => 500
+  }
+}
+
+filter {
+  grok {
+    match => { "message" => "%{GREEDYDATA:took}valu%{GREEDYDATA:avg}}}}"}
+  }
+  mutate {
+    split => {"avg" => ":"}
+    add_field => {
+      "to_be_removed" => "%{avg[0]}"
+      "answer" => "%{avg[1]}"
+    }
+    remove_field => ["took", "message", "command", "to_be_removed", "avg"]
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+문제7
+elasticsearch(13.125.21.52:9200) `shopping` index에서 판매자 평점이 2~4 사이인 고객의 평균 상품개수를 출력해보자
+풀이7
+?	ex7.sh
+curl -XGET "http://13.125.21.52:9200/shopping/_search" -H 'Content-Type: application/json' -d'
+{
+  "size": 0,
+  "query": {
+    "range": {
+      "판매자평점": {
+        "gte": 2,
+        "lte": 4
+      }
+    }
+  },
+  "aggs": {
+    "avg_item": {
+      "avg": {
+        "field": "상품개수"
+      }
+    }
+  }
+}'
+
+*	ex7.sh 권한설정
+$ chmod 777 ex7.sh
+
+*	ex7.conf
+input {
+  exec {
+    command => "/home/ec2-user/fc/logstash-5.6.4/ex7.sh"
+    interval => 500
+  }
+}
+
+filter {
+  grok {
+    match => { "message" => "%{GREEDYDATA:took}valu%{GREEDYDATA:avg}}}}"}
+  }
+  mutate {
+    split => {"avg" => ":"}
+    add_field => {
+      "to_be_removed" => "%{avg[0]}"
+      "answer" => "%{avg[1]}"
+    }
+    remove_field => ["took", "message", "command", "to_be_removed", "avg"]
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제8
+사용자 입력을 받아서 콘솔에 출력해보자
+
+풀이8
+input {
+  stdin {}
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제9
+이미 읽은 titanic.csv 파일을 강제로 다시 읽어서 콘솔에 출력해보자
+
+풀이9
+input {
+  file {
+    path => "/home/ec2-user/fc/logstash-5.6.4/sample/titanic.csv"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제10
+mysql(13.125.21.52:3306) database(fc) table(fc)에서 sql_last_value를 활용해서 id > 5인 값을 출력해보자
+
+풀이10
+*	우선 id < 5 까지 실행해서 sql_last_value에 기억시켜둔다
+
+input {
+  jdbc {
+    jdbc_validate_connection => true
+    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+    jdbc_user => "fc"
+    jdbc_password => "fc"
+    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    use_column_value => true
+    tracking_column => id
+    statement => "
+      SELECT *
+      FROM fc
+      WHERE id < 5
+    "
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+*	sql_last_value 이상인 값을 출력한다
+
+input {
+  jdbc {
+    jdbc_validate_connection => true
+    jdbc_connection_string => "jdbc:mysql://13.125.21.52:3306/fc"
+    jdbc_user => "fc"
+    jdbc_password => "fc"
+    jdbc_driver_library => "/home/ec2-user/fc/logstash-5.6.4/driver/mysql-connector-java-5.1.36/mysql-connector-java-5.1.36-bin.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    use_column_value => true
+    tracking_column => id
+    statement => "
+      SELECT *
+      FROM fc
+      WHERE id > :sql_last_value
+    "
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제11
+sample.csv를 다운 받고 다음과 같은 조건으로 filter 처리해보자
+1. 모든 row를 ,로 구분하자
+2. 각 column 이름을 앞에서부터 idx, item, name, int1, float1, float2, float3, location, item2, float4로 하자 
+3. int1, float1, float2, float3, float4는 각각 integer, float, float, float, float로 datatype을 변형하자
+
+풀이11
+
+input {
+  file {
+    path => "/home/ec2-user/fc/logstash-5.6.4/sample/sample.csv"
+    sincedb_path => "/dev/null"
+    start_position => "beginning"
+  }
+}
+
+filter {
+  csv {
+    columns => ["idx", "item", "name", "int1", "float1", "float2", "float3", "location", "float4"]
+    separator => ","
+    convert => {
+      "int1" => "integer"
+      "float1" => "float"
+      "float2" => "float"
+      "float3" => "float"
+      "float4" => "float"
+    }
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+
+문제12
+“Seoul”, “Tokyo”, “Beijing”를 입력 받아서 mutate filter 이용해 다음처럼 출력해보자
+---
+"Korea":"Seoul",
+"Japan":"Tokyo",
+"China":"Beijing"
+풀이12
+input {
+  stdin {}
+}
+
+filter {
+  mutate {
+    copy => { "message" => "original" }
+    split => { "message" => "," }
+    add_field => {
+      "Koera" => "%{message[0]}"
+      "Japan" => "%{message[1]}"
+      "China" => "%{message[2]}"
+    }
+    remove_field => ["@version", "host", "@timestamp", "message"]
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+

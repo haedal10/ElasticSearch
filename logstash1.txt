@@ -1,0 +1,40 @@
+1. installing logstash
+ - 자바 버전확인
+ java -version 
+ - 1.8이상 필요
+ 
+2. installing from a Downloaded Binary 
+ - (1) logstash installation file 다운로드  및 unpack
+ - (2) 리눅스 환경이면, 패키지 매니저로 로그스태쉬 설치할것.
+
+3. installing from package repositories
+
+3-(1) APT
+(생략)
+3-(2) YUM
+ - 공개키를 다운한다.
+ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+ - 파일추가
+ : /etc/yum.repos.d/ 디렉토리에 .repo형식의 파일을 추가한다.
+ 
+logstash.repo
+
+[logstash-6.x]
+name=Elastic repository for 6.x packages
+baseurl=https://artifacts.elastic.co/packages/6.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+
+ - 레파지토리 사용할 준비가 되었으니 설치한다.
+
+ sudo yum install logstash
+
+ - centos 5 는 rpm 오래된 버전이라 안됨. 참고
+ 
+3-(3) 도커
+(생략)
+
+

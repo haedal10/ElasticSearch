@@ -1,0 +1,6 @@
+- 파일비트 시작
+
+sudo service filebeat start
+
+
+
