@@ -4,7 +4,7 @@ input {
     jdbc_validate_connection => true
     jdbc_user => "USER"
     jdbc_password => "PASSWORD"
-    jdbc_driver_library => "/PWD/ojdbc14.jar"
+    jdbc_driver_library => "/jar file pwd/ojdbc14.jar"
     jdbc_driver_class => "Java::oracle.jdbc.driver.OracleDriver"
     statement => "SELECT SQL"
   }
@@ -15,5 +15,3 @@ output {
    codec => rubydebug
   }
 }
-
-

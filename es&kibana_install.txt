@@ -31,8 +31,7 @@ elasticsearch + kibana 구성
    server running at http://localhost:5601
 ########################################################
 
-
-
+#kibana 안내려갈때 직접 포트보거나 해당 명렁어로 kill
 **kibana 포트 에러.(이미사용중)
 해결 : 
 lsof -i :5601

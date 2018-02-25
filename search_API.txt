@@ -30,7 +30,7 @@ PUT {Index 이름}/{Type 이름}/{ID}
 "{Field 이름}":{Value}
 }
 
-PUT week3_higee/week3_higee/!
+PUT week3_hmcho/week3_hmcho/!
 {
 "가격":10000,
 "나이":17

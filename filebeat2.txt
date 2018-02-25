@@ -28,13 +28,11 @@ ES에 성공적으로 연결한 후 템플릿을 자동으로 로드함.
 filebeat.yml 파일내 setup.template.name 및 setup.template.fields 옵션을 조정하여
 다른 템플리트를 로드하도록 filebeat를 구성 할 수 있음.
 
-
 ----------------------------------------------------------------------
 setup.template.name: "filebeat"
 setup.template.fields: "path/to/fields.yml"
 setup.template.overwrite: false
 ----------------------------------------------------------------------------
-
 
 - 템플릿 로드하는 명령어.
 ./filebeat setup --template

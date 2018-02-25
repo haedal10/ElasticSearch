@@ -1,11 +1,9 @@
 설치 예제들을 보면
 
 
-
 다들 저기에 @timestamp 라는 항목이 표시되지만
 
 저는 붉은 테두리가 생기고 Create 버튼을 누를수가 없습니다.
-
 
 
 왜 나만 안되는걸까요? 그래서 외국 사이트들을 찾아보니
@@ -18,9 +16,7 @@
 
 
 
-
-
- 해결방법
+해결방법
 
 
 
@@ -29,7 +25,6 @@ Go to Settings → Advanced.
 Edit the metaFields and add "_timestamp". Hit save.
 
 Now go back to Settings → Indices and _timestamp will be available in the drop-down list for "Time-field name".
-
 
 
 출처: http://doswlf.tistory.com/738 [무차별 대량 비난]

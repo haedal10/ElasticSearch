@@ -7,6 +7,7 @@
  /etc/filebeat/filebeat.yml 파일 수정
  
  -----------------------------------------------------
+
  filebeat.prospectors:
 - type: log
   enabled: true

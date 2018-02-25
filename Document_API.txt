@@ -1,4 +1,3 @@
-
 Document API (기능)
 
 1. Document 생성
@@ -14,7 +13,7 @@ PUT {Index 이름}/{Type 이름}/{ID}
 "{Field 이름}":{Value}
 }
 
-PUT week3_higee/week3_higee/1
+PUT week3_hmcho/week3_hmcho/1
 {
 "가격":10000,
 "나이":17
@@ -37,7 +36,7 @@ PUT {Index 이름}/{Type 이름}/{ID}
  
  GET {index 이름}/{Type 이름}/{ID}
  
- GET week3_higee/week3_higee/1
+ GET week3_hmcho/week3_hmcho/1
  
  
  --------------------------------------------------------------------
@@ -45,7 +44,7 @@ PUT {Index 이름}/{Type 이름}/{ID}
  
  DELETE {index 이름}/{Type 이름}/{ID}
  
- DELETE week3_higee/week3_higee/1
+ DELETE week3_hmcho/week3_hmcho/1
  
  
 -------------------------------------------------------------------
@@ -60,7 +59,7 @@ POST {Index 이름}/_delete_by_query
   }
 }
  
-POST week3_higee/_delete_by_query
+POST week3_hmcho/_delete_by_query
 {
 "query": {
   "match": {
@@ -78,7 +77,7 @@ POST {Index 이름}/{Type 이름}/{ID}/_update
 }
 }
 
-POST week3_higee/week3_higee/2/_update
+POST week3_hmcho/week3_hmcho/2/_update
 {
 "doc":{
 "가격":20000
@@ -97,7 +96,7 @@ POST {Index 이름}/{Type 이름}/{ID}/_update
 }
 
 
-POST week3_higee/week3_higee/2/_update
+POST week3_hmcho/week3_hmcho/2/_update
 {
 "doc":{
 "가격":"50000"
@@ -105,7 +104,7 @@ POST week3_higee/week3_higee/2/_update
 "doc_as_upsert":true
 }
  
-POST week3_higee/week3_higee/777/_update
+POST week3_hmcho/week3_hmcho/777/_update
 {
 "doc":{
 "가격":"50000"
@@ -128,7 +127,7 @@ POST {Index 이름}/{Type 이름}/_update_by_query
 }
 } 
  
-POST week3_higee/week3_higee/_update_by_query
+POST week3_hmcho/week3_hmcho/_update_by_query
 {
 "script":{
 "source":"ctx._source['가격']= 7777"
@@ -156,10 +155,10 @@ POST _reindex
 POST _reindex 
 {
 "source":{
-"index":"week3_higee"
+"index":"week3_hmcho"
 },
 "dest":{
-"index":"week3_higee_reindex"
+"index":"week3_hmcho_reindex"
 }
 }
 
@@ -185,8 +184,8 @@ POST _reindex
 POST _reindex 
 {
 "source":{
-"index":"week3_higee",
-"type":"week3_higee",
+"index":"week3_hmcho",
+"type":"week3_hmcho",
 "query":{
 "term":{
 "나이":17
@@ -194,7 +193,7 @@ POST _reindex
 }
 },
 "dest":{
-"index":"week3_higee_reindex2"
+"index":"week3_hmcho_reindex2"
 }
 }
 
